@@ -9,7 +9,7 @@ import json
 PARAMS = params()
 PROPERTIES_RETENTION = PARAMS['plan']['retention-days'] * 24
 PROFILE_RETENTION = PARAMS['plan']['retention-days']
-DROP_PROPERTIES_INTERVAL = 5
+DROP_PROPERTIES_INTERVAL = 24
 
 def parse(events):
     for event in events:
@@ -38,14 +38,8 @@ def drop_old_properties(now, profile):
             empty_values = []
             prop = properties[key]
             for value, counts in values.iteritems():
-                i = 0
-                for hour, count in counts:
-                    if now - hour <= PROPERTIES_RETENTION:
-                        break
-                    i += 1
-                if 0 < i < len(counts):
-                    prop[value] = counts[i:]
-                elif i > 0:
+                counts.drop_chunks(lambda x: now - x[0] <= PROPERTIES_RETENTION)
+                if not counts:
                     empty_values.append(value)
             for value in empty_values:
                 del prop[value]
