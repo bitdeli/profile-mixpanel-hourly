@@ -2,14 +2,15 @@ from bitdeli import profile_events
 from bitdeli.protocol import params
 from bitdeli.chunkedlist import ChunkedList
 from collections import Counter
-from itertools import groupby
+from itertools import groupby, islice
 from operator import itemgetter
 import json
 
 PARAMS = params()
 PROPERTIES_RETENTION = PARAMS['plan']['retention-days'] * 24
 PROFILE_RETENTION = PARAMS['plan']['retention-days']
-DROP_PROPERTIES_INTERVAL = 24
+DROP_PROPERTIES_INTERVAL = 5
+MAX_VALUES_PER_PROPERTY = 10
 
 def parse(events):
     for event in events:
@@ -35,15 +36,21 @@ def drop_old_properties(now, profile):
         properties = profile['properties']
         empty_keys = []
         for key, values in properties.iteritems():
-            empty_values = []
-            prop = properties[key]
-            for value, counts in values.iteritems():
+            items = [(iter(counts).next(), value, counts)
+                     for value, counts in values.iteritems()]
+            pivot = max(0, len(values) - MAX_VALUES_PER_PROPERTY)
+            if pivot > 0:
+                # drop the oldest values, if the number of values exceeds
+                # MAX_VALUES_PER_PROPERTY
+                items.sort()
+                for time, value, counts in items[:pivot]:
+                    del values[value]
+            # drop timestamps per PROPERTIES_RETENTION
+            for time, value, counts in items[pivot:]:
                 counts.drop_chunks(lambda x: now - x[0] <= PROPERTIES_RETENTION)
                 if not counts:
-                    empty_values.append(value)
-            for value in empty_values:
-                del prop[value]
-            if not prop:
+                    del values[value]
+            if not values:
                 empty_keys.append(key)
         for key in empty_keys:
             del properties[key]
