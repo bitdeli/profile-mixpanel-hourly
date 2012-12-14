@@ -65,7 +65,8 @@ for profile, daily_events in profile_events():
         prop_counter = Counter()
         for hour, event_type, event_properties in hourly_events:
             event_counter[event_type] += 1
-            prop_counter.update(event_properties.iteritems())
+            prop_counter.update((unicode(k), unicode(v))\
+                                for k, v in event_properties.iteritems())
         for event_type, count in event_counter.iteritems():
             push(events, event_type, hour, count)
         for (prop_key, prop_value), count in prop_counter.iteritems():
