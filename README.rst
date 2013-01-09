@@ -46,9 +46,3 @@ Raw events from `Mixpanel <https://mixpanel.com>`_, aggregated by hour.
   (limited by the `Mixpanel Data Export API <https://mixpanel.com/docs/api-documentation/data-export-api>`_)
 
 - **Code:** `bitdeli/profile-mixpanel-hourly <https://github.com/bitdeli/profile-mixpanel-hourly>`_
-
-
-.. image:: https://d2weczhvl823v0.cloudfront.net/bitdeli/profile-mixpanel-hourly/trend.png
-   :alt: Bitdeli badge
-   :target: https://bitdeli.com/free
-
