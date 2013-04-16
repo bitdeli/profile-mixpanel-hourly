@@ -1,5 +1,5 @@
 from bitdeli import profile_events
-from bitdeli.protocol import params
+from bitdeli.protocol import params, done
 from bitdeli.chunkedlist import ChunkedList
 from collections import Counter
 from itertools import groupby, islice
@@ -73,3 +73,5 @@ for profile, daily_events in profile_events():
             push(properties.setdefault(prop_key, {}), prop_value, hour, count)
     drop_old_properties(hour, profile)
     profile.set_expire(PROFILE_RETENTION)
+
+done()
